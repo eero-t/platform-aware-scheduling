@@ -128,7 +128,7 @@ func TestMetricsExtender_prescheduleChecks(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			m := NewMetricsExtender(tt.fields.cache)
+			m := NewMetricsExtender("", tt.fields.cache)
 			err := tt.fields.cache.WritePolicy(tt.fields.policy.Namespace, tt.fields.policy.Name, tt.fields.policy)
 			if err != nil && tt.wantErr {
 				klog.InfoS(err.Error(), "component", "testing")
@@ -226,7 +226,7 @@ func TestMetricsExtender_Prioritize(t *testing.T) {
 	for _, tt := range tests {
 		tt := tt
 		t.Run(tt.name, func(t *testing.T) {
-			m := NewMetricsExtender(tt.fields.cache)
+			m := NewMetricsExtender("", tt.fields.cache)
 			err := tt.fields.cache.WritePolicy(tt.fields.policy.Namespace, tt.fields.policy.Name, tt.fields.policy)
 			if err != nil && tt.wantErr {
 				klog.InfoS(err.Error(), "component", "testing")

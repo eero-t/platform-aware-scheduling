@@ -42,12 +42,14 @@ var (
 // MetricsExtender holds information on the cache holding scheduling strategies and metrics.
 type MetricsExtender struct {
 	cache cache.Reader
+	defPolicy string
 }
 
 // NewMetricsExtender returns a new metric Extender with the cache passed to it.
-func NewMetricsExtender(newCache cache.Reader) MetricsExtender {
+func NewMetricsExtender(defPolicy string, newCache cache.Reader) MetricsExtender {
 	return MetricsExtender{
 		cache: newCache,
+		defPolicy: defPolicy,
 	}
 }
 
@@ -138,7 +140,11 @@ func (m MetricsExtender) prioritizeNodes(args extender.Args) *extender.HostPrior
 
 // getPolicyFromPod returns the policy associated with a pod, if declared, from the api.
 func (m MetricsExtender) getPolicyFromPod(pod *v1.Pod) (telemetrypolicy.TASPolicy, error) {
-	if policyName, ok := pod.Labels["telemetry-policy"]; ok {
+	policyName := pod.Labels["telemetry-policy"]
+	if policyName == "" {
+		policyName = m.defPolicy
+	}
+	if policyName != "" {
 		policy, err := m.cache.ReadPolicy(pod.Namespace, policyName)
 		if err != nil {
 			return telemetrypolicy.TASPolicy{}, fmt.Errorf("failed to read policy: %w", err)

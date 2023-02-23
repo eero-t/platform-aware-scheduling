@@ -32,7 +32,7 @@ import (
 const l2 = 2
 
 func main() {
-	var kubeConfig, port, certFile, keyFile, caFile, syncPeriod string
+	var kubeConfig, port, certFile, keyFile, caFile, syncPeriod, defPolicy string
 
 	klog.InitFlags(nil)
 	flag.StringVar(&kubeConfig, "kubeConfig", "/root/.kube/config", "location of kubernetes config file")
@@ -41,10 +41,11 @@ func main() {
 	flag.StringVar(&keyFile, "key", "/etc/kubernetes/pki/ca.key", "key file extender will use for authentication")
 	flag.StringVar(&caFile, "cacert", "/etc/kubernetes/pki/ca.crt", "ca file extender will use for authentication")
 	flag.StringVar(&syncPeriod, "syncPeriod", "5s", "length of time in seconds between metrics updates")
+	flag.StringVar(&defPolicy, "defPolicy", "", "name of policy to use when pod is lacking one")
 	flag.Parse()
 
 	cache := tascache.NewAutoUpdatingCache()
-	tscheduler := telemetryscheduler.NewMetricsExtender(cache)
+	tscheduler := telemetryscheduler.NewMetricsExtender(defPolicy, cache)
 
 	sch := extender.Server{Scheduler: tscheduler}
 	go sch.StartServer(port, certFile, keyFile, caFile, false)
